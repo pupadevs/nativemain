@@ -1,0 +1,87 @@
+#!/usr/bin/env php
+<?php
+
+function updateComposerJson($baseDir) {
+    $composerFile = $baseDir . '/composer.json';
+
+    if (file_exists($composerFile)) {
+        $composerData = json_decode(file_get_contents($composerFile), true);
+        
+        // Verificar si la sección "autoload" ya existe
+        if (isset($composerData['autoload']['psr-4']['Source'])) {
+            echo "La ruta Source ya está en el autoload.\n";
+        } else {
+            // Agregar la ruta al autoload
+            $composerData['autoload']['psr-4']['Source'] = 'src/';
+            file_put_contents($composerFile, json_encode($composerData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            echo "Ruta 'Source' agregada al autoload en composer.json: $composerFile\n";
+        }
+    } else {
+        // Si no existe composer.json, crear uno con autoload
+        $data = [
+            'name' => 'tu-usuario/mi-paquete',
+            'description' => 'Un paquete para generar una estructura de carpetas.',
+            'type' => 'library',
+            'require' => [
+                'php' => '>=7.0'
+            ],
+            'autoload' => [
+                'psr-4' => [
+                    'Source\\' => 'src/'
+                ]
+            ]
+        ];
+
+        file_put_contents($composerFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        echo "Archivo composer.json creado: $composerFile\n";
+    }
+}
+
+function createStructure($baseDir) {
+    $folders = [
+        'Domain' => ['Entities', 'ValueObjects', 'DomainEvents', 'Interfaces', 'DomainServices'],
+        'App' => ['DTOs', 'Commands', 'Queries', 'Services'],
+        'Infrastructure' => [
+            'Http' => ['Controllers', 'Middlewares', 'Requests'],
+            'Listeners', 
+            'Jobs', 
+            'Repositories'
+        ],
+    ];
+
+    $srcDir = $baseDir . '/src';
+
+    if (!file_exists($srcDir)) {
+        mkdir($srcDir, 0755, true);
+        echo "Carpeta src creada: $srcDir\n";
+    } else {
+        echo "La carpeta src ya existe: $srcDir\n";
+    }
+
+    // Función recursiva para crear la estructura de carpetas
+    function createFolders($baseDir, $structure) {
+        foreach ($structure as $folder => $subFolders) {
+            $path = $baseDir . '/' . $folder;
+            if (!file_exists($path)) {
+                mkdir($path, 0755, true);
+                echo "Carpeta creada: $path\n";
+            } else {
+                echo "La carpeta ya existe: $path\n";
+            }
+            if (is_array($subFolders)) {
+                createFolders($path, $subFolders);
+            }
+        }
+    }
+
+    createFolders($srcDir, $folders);
+}
+
+if ($argc < 2) {
+    echo "Uso: php mi-script <directorio_base>\n";
+    exit(1);
+}
+
+$baseDir = $argv[1];
+updateComposerJson($baseDir);
+createStructure($baseDir);

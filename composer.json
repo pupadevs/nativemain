@@ -1,0 +1,17 @@
+{
+    "name": "pupadevs/nativemain",
+    "description": "Un paquete para generar una estructura de carpetas usando PHP nativo.",
+    "type": "library",
+    "require": {
+        "php": ">=7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Source\\": "src/",
+            "Pupadevs\\": "Shared/"
+        }
+    },
+    "bin": [
+        "bin/mi-script"
+    ]
+}
