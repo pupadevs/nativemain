@@ -2,6 +2,7 @@
     "name": "pupadevs/nativemain",
     "description": "Un paquete para generar una estructura de carpetas usando PHP nativo.",
     "type": "library",
+    "license": "MIT",
     "require": {
         "php": ">=7.0"
     },
